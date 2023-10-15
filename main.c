@@ -11,6 +11,14 @@ int matchRegex(const char *string, regex_t *pattern) {
   return regexec(pattern, string, 0, NULL, 0) == 0;
 }
 
+void printHelp() {
+  printf("Usage:\n\n");
+  printf("Organize Current Directory:\t");
+  printf("dorg\n\n");
+  printf("Organize targetDirectory:\t");
+  printf("dorg <targetDirectory>\n\n");
+}
+
 void moveFileToDirectory(const char *filename, const char *targetDirectory,
                          const char *dirName) {
   char targetPath[1024];
@@ -88,6 +96,11 @@ int main(int argc, char *argv[]) {
   } else {
     targetDirectory = argv[1];
   }
+
+  if (strcmp(targetDirectory, "-h") == 0) {
+    printHelp();
+    return EXIT_SUCCESS;
+  };
 
   if (access(targetDirectory, F_OK) != 0) {
     fprintf(stderr, "Target directory does not exist.\n");
