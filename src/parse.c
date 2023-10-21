@@ -11,7 +11,7 @@ int getConfigLength() {
   FILE *config = fopen(configPath, "r");
 
   if (config == NULL) {
-    fprintf(stderr, "Error: Config File Not found, using default config");
+    fprintf(stderr, "Error: Config File Not found");
     // TODO: make a default config file
     exit(1);
   }

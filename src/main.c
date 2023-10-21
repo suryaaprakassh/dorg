@@ -124,12 +124,12 @@ int main(int argc, char *argv[]) {
   int sizeOfPatterns = sizeof(regexPatterns) / sizeof(regexPatterns[0]);
   FilePair filePatterns[sizeOfPatterns];
   createFilePatterns(filePatterns, dirName, regexPatterns, sizeOfPatterns);
-  freeArray(dirName, lenOfConfig + 1);
-  freeArray(regexPatterns, lenOfConfig);
   for (int i = 0; i <= sizeOfPatterns; i++) {
     createDirectory(dirName[i], targetDirectory);
   }
   classifyFiles(targetDirectory, filePatterns, sizeOfPatterns);
   freePatterns(filePatterns, sizeOfPatterns);
+  freeArray(dirName, lenOfConfig + 1);
+  freeArray(regexPatterns, lenOfConfig);
   return EXIT_SUCCESS;
 }
