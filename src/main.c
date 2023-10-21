@@ -1,4 +1,3 @@
-
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
@@ -8,6 +7,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include "parse.h"
 
 typedef struct {
   char folder[256];
@@ -78,8 +79,8 @@ void createDirectory(const char *dirName, const char *targetDirectory) {
   }
 }
 
-void createFilePatterns(FilePair *pattern, const char *dirNames[],
-                        const char *regexPatterns[], int len) {
+void createFilePatterns(FilePair *pattern, char *dirNames[],
+                        char *regexPatterns[], int len) {
   for (int i = 0; i < len; i++) {
     strcpy(pattern[i].folder, dirNames[i]);
     regcomp(&pattern[i].pattern, regexPatterns[i], REG_EXTENDED | REG_ICASE);
@@ -92,9 +93,14 @@ void freePatterns(FilePair *pattern, int len) {
   }
 }
 
+void freeArray(char *arr[], int len) {
+  for (int i = 0; i < len; i++) {
+    free(arr[i]);
+  }
+}
+
 int main(int argc, char *argv[]) {
   const char *targetDirectory;
-
   if (argc < 2) {
     targetDirectory = ".";
   } else {
@@ -110,17 +116,16 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Target directory does not exist.\n");
     return EXIT_FAILURE;
   }
-  const char *dirName[] = {"Videos",     "Photos", "Documents", "Pdfs",
-                           "Installers", "Zips",   "Music",     "Others"};
-  const char *regexPatterns[] = {
-      ".*\\.(mp4|avi|mov)", ".*\\.(jpg|png|gif|jpeg)", ".*\\.(docs|doc|txt)",
-      ".*\\.(pdf)",         ".*\\.(deb|exe)",          ".*\\.(zip|tar|gz)",
-      ".*\\.(mp3)"};
-
+  int lenOfConfig = getConfigLength();
+  char *dirName[lenOfConfig + 1];
+  char *regexPatterns[lenOfConfig];
+  readConfig(dirName, regexPatterns);
+  dirName[lenOfConfig] = strndup("Others", 6);
   int sizeOfPatterns = sizeof(regexPatterns) / sizeof(regexPatterns[0]);
   FilePair filePatterns[sizeOfPatterns];
   createFilePatterns(filePatterns, dirName, regexPatterns, sizeOfPatterns);
-  // extra one for others
+  freeArray(dirName, lenOfConfig + 1);
+  freeArray(regexPatterns, lenOfConfig);
   for (int i = 0; i <= sizeOfPatterns; i++) {
     createDirectory(dirName[i], targetDirectory);
   }
