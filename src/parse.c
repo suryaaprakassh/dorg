@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 int getConfigLength() {
   char *homeDir = getenv("HOME");
   char configPath[256];
@@ -41,8 +40,28 @@ void readConfig(char *dirNames[], char *regexPatterns[]) {
     }
     dirNames[currentLine] = strndup(delimiter, strlen(delimiter));
     delimiter = strtok(NULL, "=");
-    delimiter[strlen(delimiter) - 1] = '\0';
-    snprintf(pattern, 256, ".*\\.%s", delimiter);
+    char *ch = delimiter;
+    while (ch && *ch != '\0') {
+      if (*ch == ' ' || *ch == '\n') {
+        *ch = '\0';
+        break;
+      }
+      ch++;
+    }
+    if (delimiter[0] == '(' && delimiter[strlen(delimiter) - 1] == ')') {
+      snprintf(pattern, 256, ".*\\.%s", delimiter);
+    } else {
+      int curr = 0;
+      ch = delimiter;
+      for (; *ch != '\0'; ch++) {
+        if (*ch == '/') {
+          continue;
+        }
+        delimiter[curr++] = (*ch);
+      }
+      delimiter[curr] = '\0';
+      snprintf(pattern, 256, "%s", delimiter);
+    }
     regexPatterns[currentLine] = strndup(pattern, strlen(pattern));
     currentLine++;
   }
